@@ -100,12 +100,12 @@ def geo_command_handler(message):
     with codecs.open('template/statistics.html', 'r', encoding='UTF-8') as file:
         template = Template(file.read())
         reply = template.render(date=date.today(),
-                                confirmed_new=response['Global']['NewConfirmed'],
-                                confirmed_total=response['Global']['TotalConfirmed'],
-                                deaths_new=response['Global']['NewDeaths'],
-                                deaths_total=response['Global']['TotalDeaths'],
-                                recovered_new=response['Global']['NewRecovered'],
-                                recovered_total=response['Global']['TotalRecovered'])
+                                new_confirmed=response['Global']['NewConfirmed'],
+                                total_confirmed=response['Global']['TotalConfirmed'],
+                                new_deaths=response['Global']['NewDeaths'],
+                                total_deaths=response['Global']['TotalDeaths'],
+                                new_recovered=response['Global']['NewRecovered'],
+                                total_recovered=response['Global']['TotalRecovered'])
 
     bot.send_message(cid, reply, parse_mode='HTML')
 
