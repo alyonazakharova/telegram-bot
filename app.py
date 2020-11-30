@@ -1,13 +1,11 @@
 import telebot
+from telebot import types
 import os
 import codecs
-from functools import wraps
-from telebot import types
-from jinja2 import Template
-
 import requests
+from functools import wraps
+from jinja2 import Template
 from datetime import date
-
 from geopy.geocoders import Nominatim
 import pycountry
 
@@ -18,7 +16,7 @@ bot = telebot.TeleBot(token)
 
 commands = {'start': 'Start using chatbot',
             'statistics': 'COVID-19 statistics in the world for today',
-            'country': 'COVID-19 statistics in specified country *currently unavailable*',
+             'country': 'COVID-19 statistics in specified country *currently unavailable*',
             'help': 'Some useful info about chatbot',
             'contacts': 'Developers contacts'}
 
