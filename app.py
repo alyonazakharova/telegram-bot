@@ -4,8 +4,6 @@ import codecs
 from functools import wraps
 from telebot import types
 from jinja2 import Template
-from services.country_service import CountryService
-from services.statistics_service import StatisticsService
 
 import requests
 from datetime import date
@@ -13,10 +11,6 @@ from datetime import date
 
 token = os.getenv('API_BOT_TOKEN')
 bot = telebot.TeleBot(token)
-user_steps = {}
-known_users = []
-country_service = CountryService()
-stats_service = StatisticsService()
 
 
 commands = {'start': 'Start using chatbot',
