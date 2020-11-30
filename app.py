@@ -23,6 +23,7 @@ commands = {'start': 'Start using chatbot',
 user_steps = {}
 known_users = []
 
+
 def get_user_step(uid):
     if uid in user_steps:
         return user_steps[uid]
@@ -122,7 +123,6 @@ def get_info_by_country_name(country_name):
 @send_action('typing')
 def geo_command_handler(message):
     cid = message.chat.id
-    # может ли не быть страны в списке?)))
     country_info = get_info_by_location(message.location.latitude, message.location.longitude)
 
     with codecs.open('template/country_statistics.html', 'r', encoding='UTF-8') as file:
@@ -189,6 +189,16 @@ def help_command_handler(message):
 
     help_text += "\nIf you are using a smartphone you can also send location to get statistics in your country.\n"
     bot.send_message(cid, help_text)
+
+
+@bot.message_handler(content_types=['text'])
+@send_action('typing')
+def log_message(message):
+    print("Message from {0}: {1}".format(message.chat.username, message.text))
+    cid = message.chat.id
+    with codecs.open('template/unknown_command.html', 'r', encoding='UTF-8') as file:
+        template = Template(file.read())
+        bot.send_message(cid, template.render(text_command=message.text), parse_mode='HTML')
 
 
 if __name__ == '__main__':
