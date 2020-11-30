@@ -11,14 +11,16 @@ from datetime import date
 from geopy.geocoders import Nominatim
 import pycountry
 
+
 token = os.getenv('API_BOT_TOKEN')
 bot = telebot.TeleBot(token)
 
+
 commands = {'start': 'Start using chatbot',
-            'country': 'Please, enter county name',
-            'statistics': 'Statistics by users queries',
+            'statistics': 'COVID-19 statistics in the world for today',
+            'country': 'COVID-19 statistics in specified country *currently unavailable*',
             'help': 'Some useful info about chatbot',
-            'contacts': 'Developer contacts'}
+            'contacts': 'Developers contacts'}
 
 
 def send_action(action):
@@ -27,9 +29,7 @@ def send_action(action):
         def command_func(message, *args, **kwargs):
             bot.send_chat_action(message.chat.id, action)
             return func(message, *args, **kwargs)
-
         return command_func
-
     return decorator
 
 
@@ -40,7 +40,7 @@ def start_command_handler(message):
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     btn_geo = types.KeyboardButton(text='send location', request_location=True)
     markup.add(btn_geo)
-    bot.send_message(cid, 'Hi, {0}! Please, choose command from the list:'
+    bot.send_message(cid, 'Hi, {0}! Please, choose command from the list'
                      .format(message.chat.username),
                      reply_markup=markup)
     help_command_handler(message)
@@ -132,10 +132,12 @@ def contacts_command_handler(message):
 @send_action('typing')
 def help_command_handler(message):
     cid = message.chat.id
-    help_text = 'The following commands are available\n'
+    help_text = 'The following commands are available:\n'
     for command in commands:
         help_text += '/' + command + ': '
         help_text += commands[command] + '\n'
+
+    help_text += "\nIf you are using a smartphone you can also send location to get statistics in your country.\n"
     bot.send_message(cid, help_text)
 
 
