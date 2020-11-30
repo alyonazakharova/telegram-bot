@@ -9,6 +9,8 @@ from datetime import date
 from geopy.geocoders import Nominatim
 import pycountry
 
+import logging
+
 
 token = os.getenv('API_BOT_TOKEN')
 bot = telebot.TeleBot(token)
@@ -19,6 +21,7 @@ commands = {'start': 'Start using chatbot',
              'country': 'COVID-19 statistics in specified country',
             'help': 'Some useful info about chatbot',
             'contacts': 'Developers contacts'}
+
 
 user_steps = {}
 known_users = []
@@ -46,6 +49,11 @@ def send_action(action):
 @bot.message_handler(commands=['start'])
 @send_action('typing')
 def start_command_handler(message):
+
+    logging.info("/start command from user {0} ({1} {2})"
+                 .format(message.chat.username,
+                         message.chat.first_name, message.chat.last_name))
+
     cid = message.chat.id
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     btn_geo = types.KeyboardButton(text='send location', request_location=True)
@@ -59,6 +67,11 @@ def start_command_handler(message):
 @bot.message_handler(commands=['country'])
 @send_action('typing')
 def country_command_handler(message):
+
+    logging.info("/country command from user {0} ({1} {2})"
+                 .format(message.chat.username,
+                         message.chat.first_name, message.chat.last_name))
+
     cid = message.chat.id
     user_steps[cid] = 1
     bot.send_message(cid, 'Please, enter country name.'.format(message.chat.username))
@@ -107,6 +120,7 @@ def get_info_by_location(latitude, longitude):
 
     for elem in response['Countries']:
         if elem['Country'] == country:
+            logging.info("Location sent from {0}".format(country))
             return elem
 
 
@@ -115,6 +129,7 @@ def get_info_by_country_name(country_name):
     response = requests.request("GET", url).json()
     for elem in response['Countries']:
         if elem['Country'].lower() == country_name:
+            logging.info("Request for statistics in {0}".format(country_name))
             return elem
     return None
 
@@ -124,11 +139,17 @@ def get_info_by_country_name(country_name):
 def geo_command_handler(message):
     cid = message.chat.id
     country_info = get_info_by_location(message.location.latitude, message.location.longitude)
+    country_name = country_info['Country']
+
+    logging.info("User {0} ({1} {2}) sent location: {3}"
+                 .format(message.chat.username,
+                         message.chat.first_name, message.chat.last_name,
+                         country_name))
 
     with codecs.open('template/country_statistics.html', 'r', encoding='UTF-8') as file:
         template = Template(file.read())
         reply = template.render(date=date.today(),
-                                country=country_info['Country'],
+                                country=country_name,
                                 new_confirmed=country_info['NewConfirmed'],
                                 total_confirmed=country_info['TotalConfirmed'],
                                 new_deaths=country_info['NewDeaths'],
@@ -142,6 +163,11 @@ def geo_command_handler(message):
 @bot.message_handler(commands=['statistics'])
 @send_action('typing')
 def geo_command_handler(message):
+
+    logging.info("/statistics command from user {0} ({1} {2})"
+                 .format(message.chat.username,
+                         message.chat.first_name, message.chat.last_name))
+
     cid = message.chat.id
 
     url = "https://api.covid19api.com/summary"
@@ -172,6 +198,11 @@ def greeting_command_handler(message):
 @bot.message_handler(commands=['contacts'])
 @send_action('typing')
 def contacts_command_handler(message):
+
+    logging.info("/contacts command from user {0} ({1} {2})"
+                 .format(message.chat.username,
+                         message.chat.first_name, message.chat.last_name))
+
     cid = message.chat.id
     with codecs.open('template/contacts.html', 'r', encoding='UTF-8') as file:
         template = Template(file.read())
@@ -181,6 +212,11 @@ def contacts_command_handler(message):
 @bot.message_handler(commands=['help'])
 @send_action('typing')
 def help_command_handler(message):
+
+    logging.info("/help command from user {0} ({1} {2})"
+                 .format(message.chat.username,
+                         message.chat.first_name, message.chat.last_name))
+
     cid = message.chat.id
     help_text = 'The following commands are available:\n'
     for command in commands:
@@ -193,8 +229,13 @@ def help_command_handler(message):
 
 @bot.message_handler(content_types=['text'])
 @send_action('typing')
-def log_message(message):
-    print("Message from {0}: {1}".format(message.chat.username, message.text))
+def unknown_command_handler(message):
+
+    logging.info("Message from user {0} ({1} {2}): {3}"
+                 .format(message.chat.username,
+                         message.chat.first_name, message.chat.last_name,
+                         message.text))
+
     cid = message.chat.id
     with codecs.open('template/unknown_command.html', 'r', encoding='UTF-8') as file:
         template = Template(file.read())
@@ -202,4 +243,5 @@ def log_message(message):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     bot.polling(none_stop=True, interval=0)
