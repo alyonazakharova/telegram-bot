@@ -8,10 +8,11 @@ from jinja2 import Template
 import requests
 from datetime import date
 
+from geopy.geocoders import Nominatim
+import pycountry
 
 token = os.getenv('API_BOT_TOKEN')
 bot = telebot.TeleBot(token)
-
 
 commands = {'start': 'Start using chatbot',
             'country': 'Please, enter county name',
@@ -21,13 +22,14 @@ commands = {'start': 'Start using chatbot',
 
 
 def send_action(action):
-
     def decorator(func):
         @wraps(func)
         def command_func(message, *args, **kwargs):
             bot.send_chat_action(message.chat.id, action)
             return func(message, *args, **kwargs)
+
         return command_func
+
     return decorator
 
 
@@ -52,14 +54,39 @@ def start_command_handler(message):
 #     bot.send_message(cid, '{0}, enter country name, please'.format(message.chat.username))
 
 
-# @bot.message_handler(content_types=['location'])
-# @send_action('typing')
-# def geo_command_handler(message):
-#     cid = message.chat.id
-#     geo_result = country_service.get_country_information(message.location.latitude, message.location.longitude)
-#     statistics = stats_service.get_statistics_by_country_name(geo_result['countryName'], message.chat.username)
-#     user_steps[cid] = 0
-#     bot.send_message(cid, statistics, parse_mode='HTML')
+def get_country_info(latitude, longitude):
+    url = "https://api.covid19api.com/summary"
+    response = requests.request("GET", url).json()
+
+    geolocator = Nominatim(user_agent="telegram-bot")
+    location = geolocator.reverse((latitude, longitude))
+    country_code = location.raw['address']['country_code']
+    country = pycountry.countries.get(alpha_2=country_code).name
+
+    for elem in response['Countries']:
+        if elem['Country'] == country:
+            return elem
+
+
+@bot.message_handler(content_types=['location'])
+@send_action('typing')
+def geo_command_handler(message):
+    cid = message.chat.id
+    # может ли не быть страны в списке?)))
+    country_info = get_country_info(message.location.latitude, message.location.longitude)
+
+    with codecs.open('template/country_statistics.html', 'r', encoding='UTF-8') as file:
+        template = Template(file.read())
+        reply = template.render(date=date.today(),
+                                country=country_info['Country'],
+                                new_confirmed=country_info['NewConfirmed'],
+                                total_confirmed=country_info['TotalConfirmed'],
+                                new_deaths=country_info['NewDeaths'],
+                                total_deaths=country_info['TotalDeaths'],
+                                new_recovered=country_info['NewRecovered'],
+                                total_recovered=country_info['TotalRecovered'])
+
+    bot.send_message(cid, reply, parse_mode='HTML')
 
 
 @bot.message_handler(commands=['statistics'])
