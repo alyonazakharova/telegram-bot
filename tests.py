@@ -76,5 +76,19 @@ async def run_example(client: Client):
     assert "Russian Federation" in response.full_text
 
 
+    async with controller.collect(count=1) as response:  # type: Response
+        await controller.send_command("contacts")
+
+    assert response.num_messages == 1
+    assert "4 members" in response.full_text
+
+
+    async with controller.collect(count=1) as response:  # type: Response
+        await client.send_message(controller.peer_id, "hi")
+
+    assert response.num_messages == 1
+    assert "To get to know me better" in response.full_text
+
+
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(run_example(create_client()))
