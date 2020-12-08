@@ -72,17 +72,14 @@ def country_command_handler(message):
                          message.chat.first_name, message.chat.last_name))
 
     cid = message.chat.id
-    user_steps[cid] = 1
-    bot.send_message(cid, 'Please, enter country name.'.format(message.chat.username))
-#     кек, короче если выбрать эту команду, то пока не введешь корректное название страны,
-#     он не будет воспринимать другие команды
+
+    send = bot.send_message(cid, 'Please, enter country name.'.format(message.chat.username))
+    bot.register_next_step_handler(send, get_country_name)
 
 
-@bot.message_handler(func=lambda message: get_user_step(message.chat.id) == 1)
-@send_action('typing')
-def country_statistics_command_handler(message):
+def get_country_name(message):
     cid = message.chat.id
-    country_name = message.text.strip().lower()
+    country_name = message.text.strip()
 
     statistics = get_info_by_country_name(country_name)
 
@@ -92,42 +89,23 @@ def country_statistics_command_handler(message):
         bot.send_message(cid, template.render(), parse_mode='HTML')
         return
 
-    user_steps[cid] = 0
-    # дублирование ето круто!11!
-    with codecs.open('template/country_statistics.html', 'r', encoding='UTF-8') as file:
-        template = Template(file.read())
-        reply = template.render(date=date.today(),
-                                country=statistics['Country'],
-                                new_confirmed=statistics['NewConfirmed'],
-                                total_confirmed=statistics['TotalConfirmed'],
-                                new_deaths=statistics['NewDeaths'],
-                                total_deaths=statistics['TotalDeaths'],
-                                new_recovered=statistics['NewRecovered'],
-                                total_recovered=statistics['TotalRecovered'])
-
+    reply = get_statistics_reply(statistics)
     bot.send_message(cid, reply, parse_mode='HTML')
 
 
 def get_info_by_location(latitude, longitude):
-    url = "https://api.covid19api.com/summary"
-    response = requests.request("GET", url).json()
-
     geolocator = Nominatim(user_agent="telegram-bot")
     location = geolocator.reverse((latitude, longitude))
     country_code = location.raw['address']['country_code']
     country = pycountry.countries.get(alpha_2=country_code).name
 
-    for elem in response['Countries']:
-        if elem['Country'] == country:
-            logging.info("Location sent from {0}".format(country))
-            return elem
+    return get_info_by_country_name(country)
 
 
 def get_info_by_country_name(country_name):
-    url = "https://api.covid19api.com/summary"
-    response = requests.request("GET", url).json()
+    response = get_covid_statistics()
     for elem in response['Countries']:
-        if elem['Country'].lower() == country_name:
+        if elem['Country'].lower() == country_name.lower():
             logging.info("Request for statistics in {0}".format(country_name))
             return elem
     return None
@@ -145,17 +123,7 @@ def geo_command_handler(message):
                          message.chat.first_name, message.chat.last_name,
                          country_name))
 
-    with codecs.open('template/country_statistics.html', 'r', encoding='UTF-8') as file:
-        template = Template(file.read())
-        reply = template.render(date=date.today(),
-                                country=country_name,
-                                new_confirmed=country_info['NewConfirmed'],
-                                total_confirmed=country_info['TotalConfirmed'],
-                                new_deaths=country_info['NewDeaths'],
-                                total_deaths=country_info['TotalDeaths'],
-                                new_recovered=country_info['NewRecovered'],
-                                total_recovered=country_info['TotalRecovered'])
-
+    reply = get_statistics_reply(country_info)
     bot.send_message(cid, reply, parse_mode='HTML')
 
 
@@ -169,8 +137,7 @@ def geo_command_handler(message):
 
     cid = message.chat.id
 
-    url = "https://api.covid19api.com/summary"
-    response = requests.request("GET", url).json()
+    response = get_covid_statistics();
 
     with codecs.open('template/statistics.html', 'r', encoding='UTF-8') as file:
         template = Template(file.read())
@@ -239,6 +206,26 @@ def unknown_command_handler(message):
     with codecs.open('template/unknown_command.html', 'r', encoding='UTF-8') as file:
         template = Template(file.read())
         bot.send_message(cid, template.render(text_command=message.text), parse_mode='HTML')
+
+
+def get_statistics_reply(statistics):
+    with codecs.open('template/country_statistics.html', 'r', encoding='UTF-8') as file:
+        template = Template(file.read())
+        reply = template.render(date=date.today(),
+                                country=statistics['Country'],
+                                new_confirmed=statistics['NewConfirmed'],
+                                total_confirmed=statistics['TotalConfirmed'],
+                                new_deaths=statistics['NewDeaths'],
+                                total_deaths=statistics['TotalDeaths'],
+                                new_recovered=statistics['NewRecovered'],
+                                total_recovered=statistics['TotalRecovered'])
+    return reply
+
+
+def get_covid_statistics():
+    url = "https://api.covid19api.com/summary"
+    response = requests.request("GET", url).json()
+    return response
 
 
 if __name__ == '__main__':
