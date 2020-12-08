@@ -8,9 +8,7 @@ from jinja2 import Template
 from datetime import date
 from geopy.geocoders import Nominatim
 import pycountry
-
 import logging
-#from flask import Flask, request
 
 
 token = os.getenv('API_BOT_TOKEN')
@@ -230,24 +228,6 @@ def get_covid_statistics():
     return response
 
 
-# server = Flask(__name__)
-#
-#
-# @server.route('/' + token, methods=['POST'])
-# def get_messages():
-#     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode('utf-8'))])
-#     return '!', 200
-#
-#
-# @server.route('/')
-# def web_hook():
-#     bot.remove_webhook()
-#     bot.set_webhook(url=os.getenv('HEROKU_URL') + token)
-#     return '!', 200
-
-
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     bot.polling(none_stop=True, interval=0)
-    #server.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8443)))
-
