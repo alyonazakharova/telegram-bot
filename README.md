@@ -39,23 +39,23 @@
 
 - Начало работы:
 
-![diagram2](/docs/Screenshots/start.JPG)
+![start](/docs/Screenshots/start.JPG)
 
 - Получение статистики:
 
-![diagram2](/docs/Screenshots/statistic.JPG)
+![statistic](/docs/Screenshots/statistic.JPG)
 
 - Отправка геопозиции:
 
-![diagram2](/docs/Screenshots/location.JPG)
+![location](/docs/Screenshots/location.JPG)
 
 - Статистика по стране:
 
-![diagram2](/docs/Screenshots/country.JPG)
+![country](/docs/Screenshots/country.JPG)
 
 - Команда:
 
-![diagram2](/docs/Screenshots/contacts.JPG)
+![contacts](/docs/Screenshots/contacts.JPG)
 
 
 ## Тестирование:
@@ -67,14 +67,14 @@
 
 ## Сборка:
 
-- 1.	Устанавливаем зависимости
+- 		Устанавливаем зависимости
 		$ pip install -r requirements.txt
 		(предполагается, что установлен интерпретатор python 3.8, а также пакетный менеджер pip)
 		
-- 2.	Запускаем программу
+- 		Запускаем программу
 		$ python app.py
 		
-- 3.	Запускаем тесты
+- 		Запускаем тесты
 		$ python tests.py
 
 
