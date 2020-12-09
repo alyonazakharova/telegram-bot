@@ -9,22 +9,11 @@ from tgintegration import Response
 from datetime import date
 
 
-examples_dir = Path(__file__).parent.parent.absolute()
-SESSION_NAME: str = "tgintegration_examples"
-
-
-def create_client(session_name: str = SESSION_NAME) -> Client:
-    # client = Client(
-    #     session_name=session_name,
-    #     workdir=examples_dir,
-    #     config_file="config.ini",
-    # )
+def create_client() -> Client:
     client = Client(
         "my_account",
-        api_id=2137055,
-        api_hash="be89395c5ac5688dbbca82886b6e4dec"
+        config_file="../config.ini"
     )
-    # client.load_config()
     return client
 
 
