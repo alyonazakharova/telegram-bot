@@ -39,23 +39,23 @@
 
 - Начало работы:
 
-![start](/docs/Screenshots/start.JPG)
+![start](/docs/Screenshots/start.jpg)
 
 - Получение статистики:
 
-![statistic](/docs/Screenshots/statistic.JPG)
+![statistic](/docs/Screenshots/statistic.jpg)
 
 - Отправка геопозиции:
 
-![location](/docs/Screenshots/location.JPG)
+![location](/docs/Screenshots/location.jpg)
 
 - Статистика по стране:
 
-![country](/docs/Screenshots/country.JPG)
+![country](/docs/Screenshots/country.jpg)
 
 - Команда:
 
-![contacts](/docs/Screenshots/contacts.JPG)
+![contacts](/docs/Screenshots/contacts.jpg)
 
 
 ## Тестирование:
