@@ -1,4 +1,4 @@
-# Telegram-Bot @StatInfoBot COVID-19 Statistic
+# Telegram-Bot @StatInfoTestBot COVID-19 Statistic
 
 
 ## Команда:
